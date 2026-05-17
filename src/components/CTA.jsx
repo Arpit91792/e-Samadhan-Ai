@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 import { ArrowRight, FileText, Sparkles } from 'lucide-react';
 
@@ -8,11 +9,9 @@ export default function CTA() {
 
       return (
             <section className="py-24 relative overflow-hidden">
-                  {/* Background */}
                   <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-violet-700" />
                   <div className="absolute inset-0 bg-grid opacity-10" />
 
-                  {/* Animated blobs */}
                   <motion.div
                         animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.35, 0.2] }}
                         transition={{ duration: 8, repeat: Infinity }}
@@ -24,7 +23,6 @@ export default function CTA() {
                         className="absolute bottom-0 right-0 w-80 h-80 bg-violet-300 rounded-full blur-3xl pointer-events-none"
                   />
 
-                  {/* Floating shapes */}
                   {[...Array(5)].map((_, i) => (
                         <motion.div
                               key={i}
@@ -42,13 +40,11 @@ export default function CTA() {
                               animate={inView ? { opacity: 1, y: 0 } : {}}
                               transition={{ duration: 0.7 }}
                         >
-                              {/* Badge */}
                               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/15 border border-white/30 rounded-full mb-6">
                                     <Sparkles className="w-4 h-4 text-yellow-300" />
                                     <span className="text-sm font-semibold text-white">Join the Digital Governance Revolution</span>
                               </div>
 
-                              {/* Headline */}
                               <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
                                     Transform Public Grievance{' '}
                                     <span className="bg-gradient-to-r from-yellow-300 to-amber-300 bg-clip-text text-transparent">
@@ -60,28 +56,36 @@ export default function CTA() {
                                     Join 2.4 million citizens who have already experienced faster, smarter, and more transparent government services.
                               </p>
 
-                              {/* Buttons */}
+                              {/* ── Buttons — React Router Links ── */}
                               <div className="flex flex-wrap justify-center gap-4 mb-12">
-                                    <motion.button
+                                    <motion.div
                                           whileHover={{ scale: 1.06, boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}
                                           whileTap={{ scale: 0.97 }}
-                                          className="flex items-center gap-2 px-8 py-4 bg-white text-blue-700 font-black rounded-2xl shadow-2xl text-base transition-all"
                                     >
-                                          <Sparkles className="w-5 h-5" />
-                                          Get Started Free
-                                          <ArrowRight className="w-5 h-5" />
-                                    </motion.button>
-                                    <motion.button
+                                          <Link
+                                                to="/signup"
+                                                className="flex items-center gap-2 px-8 py-4 bg-white text-blue-700 font-black rounded-2xl shadow-2xl text-base transition-all"
+                                          >
+                                                <Sparkles className="w-5 h-5" />
+                                                Get Started Free
+                                                <ArrowRight className="w-5 h-5" />
+                                          </Link>
+                                    </motion.div>
+
+                                    <motion.div
                                           whileHover={{ scale: 1.06 }}
                                           whileTap={{ scale: 0.97 }}
-                                          className="flex items-center gap-2 px-8 py-4 bg-white/15 text-white font-bold rounded-2xl border-2 border-white/40 hover:bg-white/25 text-base transition-all backdrop-blur-sm"
                                     >
-                                          <FileText className="w-5 h-5" />
-                                          Register Complaint
-                                    </motion.button>
+                                          <Link
+                                                to="/signup"
+                                                className="flex items-center gap-2 px-8 py-4 bg-white/15 text-white font-bold rounded-2xl border-2 border-white/40 hover:bg-white/25 text-base transition-all backdrop-blur-sm"
+                                          >
+                                                <FileText className="w-5 h-5" />
+                                                Register Complaint
+                                          </Link>
+                                    </motion.div>
                               </div>
 
-                              {/* Trust indicators */}
                               <div className="flex flex-wrap justify-center gap-8">
                                     {[
                                           { value: 'Free', label: 'Always free for citizens' },

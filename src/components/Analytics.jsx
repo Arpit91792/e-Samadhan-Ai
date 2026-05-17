@@ -2,61 +2,56 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import CountUp from 'react-countup';
-// react-countup v6: default export works with formattingFn prop
 import { TrendingUp, Clock, AlertOctagon, Award, BarChart3 } from 'lucide-react';
 
 const stats = [
       {
             icon: TrendingUp,
-            value: 2847293,
-            suffix: '',
-            prefix: '',
+            end: 2.4,
+            decimals: 1,
+            suffix: 'M+',
             label: 'Total Complaints Filed',
             sub: '+12% this month',
             color: 'from-blue-500 to-blue-600',
             bg: 'bg-blue-50',
             border: 'border-blue-100',
             textColor: 'text-blue-600',
-            format: (v) => (v / 1000000).toFixed(1) + 'M+',
       },
       {
             icon: Award,
-            value: 96.4,
+            end: 96.4,
+            decimals: 1,
             suffix: '%',
-            prefix: '',
             label: 'Complaints Resolved',
             sub: 'Above national average',
             color: 'from-emerald-500 to-teal-500',
             bg: 'bg-emerald-50',
             border: 'border-emerald-100',
             textColor: 'text-emerald-600',
-            format: (v) => v.toFixed(1) + '%',
       },
       {
             icon: Clock,
-            value: 4.2,
+            end: 4.2,
+            decimals: 1,
             suffix: ' hrs',
-            prefix: '',
             label: 'Avg. Resolution Time',
             sub: '68% faster than before',
             color: 'from-violet-500 to-purple-600',
             bg: 'bg-violet-50',
             border: 'border-violet-100',
             textColor: 'text-violet-600',
-            format: (v) => v.toFixed(1) + ' hrs',
       },
       {
             icon: AlertOctagon,
-            value: 1247,
+            end: 1247,
+            decimals: 0,
             suffix: '',
-            prefix: '',
             label: 'Emergency Cases Handled',
             sub: '100% response rate',
             color: 'from-red-500 to-rose-500',
             bg: 'bg-red-50',
             border: 'border-red-100',
             textColor: 'text-red-600',
-            format: (v) => v.toLocaleString(),
       },
 ];
 
@@ -89,12 +84,15 @@ function StatCard({ stat, index }) {
                   <div className={`text-3xl font-black ${stat.textColor} mb-1`}>
                         {inView ? (
                               <CountUp
-                                    end={stat.value}
+                                    end={stat.end}
                                     duration={2.5}
-                                    decimals={stat.value % 1 !== 0 ? 1 : 0}
-                                    formattingFn={stat.format}
+                                    decimals={stat.decimals}
+                                    suffix={stat.suffix}
+                                    separator=","
                               />
-                        ) : '0'}
+                        ) : (
+                              <span>0{stat.suffix}</span>
+                        )}
                   </div>
                   <p className="text-sm font-bold text-gray-800 mb-1">{stat.label}</p>
                   <p className="text-xs text-gray-500">{stat.sub}</p>
@@ -108,7 +106,6 @@ export default function Analytics() {
 
       return (
             <section id="analytics" className="py-24 bg-gradient-to-br from-slate-900 via-blue-950 to-violet-950 relative overflow-hidden">
-                  {/* Background effects */}
                   <div className="absolute inset-0 bg-grid opacity-10 pointer-events-none" />
                   <motion.div
                         animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
@@ -192,20 +189,20 @@ export default function Analytics() {
                                     ))}
                               </div>
 
-                              {/* Heatmap preview */}
+                              {/* Heatmap */}
                               <div className="mt-8 p-5 bg-white/5 rounded-2xl border border-white/10">
                                     <p className="text-sm font-semibold text-white/70 mb-3">Complaint Heatmap — India</p>
                                     <div className="grid gap-1" style={{ gridTemplateColumns: 'repeat(14, minmax(0, 1fr))' }}>
                                           {Array.from({ length: 98 }).map((_, i) => {
-                                                const intensity = Math.random();
-                                                const opacity = intensity > 0.8 ? 'opacity-100' : intensity > 0.6 ? 'opacity-70' : intensity > 0.4 ? 'opacity-40' : intensity > 0.2 ? 'opacity-20' : 'opacity-10';
-                                                const color = intensity > 0.8 ? 'bg-red-400' : intensity > 0.6 ? 'bg-orange-400' : intensity > 0.4 ? 'bg-yellow-400' : 'bg-blue-400';
+                                                const seed = (i * 7 + 13) % 10;
+                                                const opacity = seed > 7 ? 'opacity-100' : seed > 5 ? 'opacity-70' : seed > 3 ? 'opacity-40' : 'opacity-20';
+                                                const color = seed > 7 ? 'bg-red-400' : seed > 5 ? 'bg-orange-400' : seed > 3 ? 'bg-yellow-400' : 'bg-blue-400';
                                                 return (
                                                       <motion.div
                                                             key={i}
                                                             initial={{ scale: 0 }}
                                                             animate={barInView ? { scale: 1 } : {}}
-                                                            transition={{ duration: 0.3, delay: i * 0.005 }}
+                                                            transition={{ duration: 0.3, delay: i * 0.004 }}
                                                             className={`w-full aspect-square rounded-sm ${color} ${opacity}`}
                                                       />
                                                 );

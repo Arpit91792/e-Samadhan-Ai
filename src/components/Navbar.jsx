@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Zap } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X, Zap, LogOut, User } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
 const navLinks = [
       { label: 'Home', href: '#home' },
@@ -14,12 +17,21 @@ const navLinks = [
 export default function Navbar() {
       const [scrolled, setScrolled] = useState(false);
       const [mobileOpen, setMobileOpen] = useState(false);
+      const { isAuthenticated, user, logout, getDashboardPath } = useAuth();
+      const navigate = useNavigate();
 
       useEffect(() => {
             const onScroll = () => setScrolled(window.scrollY > 20);
             window.addEventListener('scroll', onScroll);
             return () => window.removeEventListener('scroll', onScroll);
       }, []);
+
+      const handleLogout = async () => {
+            await logout();
+            toast.success('Logged out successfully');
+            navigate('/');
+            setMobileOpen(false);
+      };
 
       return (
             <motion.nav
@@ -33,12 +45,9 @@ export default function Navbar() {
             >
                   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex items-center justify-between h-16 lg:h-20">
+
                               {/* Logo */}
-                              <motion.a
-                                    href="#home"
-                                    className="flex items-center gap-2.5 group"
-                                    whileHover={{ scale: 1.02 }}
-                              >
+                              <motion.a href="#home" className="flex items-center gap-2.5 group" whileHover={{ scale: 1.02 }}>
                                     <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center shadow-lg group-hover:shadow-blue-300 transition-shadow">
                                           <Zap className="w-5 h-5 text-white" fill="white" />
                                     </div>
@@ -48,7 +57,7 @@ export default function Navbar() {
                                     </div>
                               </motion.a>
 
-                              {/* Desktop Links */}
+                              {/* Desktop nav links */}
                               <div className="hidden lg:flex items-center gap-1">
                                     {navLinks.map((link) => (
                                           <motion.a
@@ -63,35 +72,70 @@ export default function Navbar() {
                                     ))}
                               </div>
 
-                              {/* CTA Buttons */}
+                              {/* Desktop CTA — changes based on auth state */}
                               <div className="hidden lg:flex items-center gap-3">
-                                    <motion.button
-                                          whileHover={{ scale: 1.05 }}
-                                          whileTap={{ scale: 0.97 }}
-                                          className="px-5 py-2.5 text-sm font-semibold text-blue-600 border-2 border-blue-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all duration-200"
-                                    >
-                                          Login
-                                    </motion.button>
-                                    <motion.button
-                                          whileHover={{ scale: 1.05, boxShadow: '0 8px 25px rgba(37,99,235,0.4)' }}
-                                          whileTap={{ scale: 0.97 }}
-                                          className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 rounded-xl shadow-lg shadow-blue-200 transition-all duration-200"
-                                    >
-                                          Sign Up Free
-                                    </motion.button>
+                                    {isAuthenticated ? (
+                                          <>
+                                                {/* Go to dashboard */}
+                                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+                                                      <Link
+                                                            to={getDashboardPath(user?.role)}
+                                                            className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-blue-600 border-2 border-blue-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all duration-200"
+                                                      >
+                                                            <User className="w-4 h-4" />
+                                                            Dashboard
+                                                      </Link>
+                                                </motion.div>
+                                                {/* Logout */}
+                                                <motion.button
+                                                      onClick={handleLogout}
+                                                      whileHover={{ scale: 1.05 }}
+                                                      whileTap={{ scale: 0.97 }}
+                                                      className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-red-500 to-rose-600 rounded-xl shadow-lg transition-all duration-200"
+                                                >
+                                                      <LogOut className="w-4 h-4" />
+                                                      Logout
+                                                </motion.button>
+                                          </>
+                                    ) : (
+                                          <>
+                                                {/* Login */}
+                                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+                                                      <Link
+                                                            to="/login"
+                                                            className="px-5 py-2.5 text-sm font-semibold text-blue-600 border-2 border-blue-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 block"
+                                                      >
+                                                            Login
+                                                      </Link>
+                                                </motion.div>
+                                                {/* Sign Up */}
+                                                <motion.div
+                                                      whileHover={{ scale: 1.05, boxShadow: '0 8px 25px rgba(37,99,235,0.4)' }}
+                                                      whileTap={{ scale: 0.97 }}
+                                                >
+                                                      <Link
+                                                            to="/signup"
+                                                            className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 rounded-xl shadow-lg shadow-blue-200 transition-all duration-200 block"
+                                                      >
+                                                            Sign Up Free
+                                                      </Link>
+                                                </motion.div>
+                                          </>
+                                    )}
                               </div>
 
-                              {/* Mobile Menu Toggle */}
+                              {/* Mobile hamburger */}
                               <button
                                     className="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100"
                                     onClick={() => setMobileOpen(!mobileOpen)}
+                                    aria-label="Toggle menu"
                               >
                                     {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                               </button>
                         </div>
                   </div>
 
-                  {/* Mobile Menu */}
+                  {/* Mobile menu */}
                   <AnimatePresence>
                         {mobileOpen && (
                               <motion.div
@@ -99,7 +143,7 @@ export default function Navbar() {
                                     animate={{ opacity: 1, height: 'auto' }}
                                     exit={{ opacity: 0, height: 0 }}
                                     transition={{ duration: 0.3 }}
-                                    className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-gray-100 shadow-xl"
+                                    className="lg:hidden bg-white/95 backdrop-blur-xl border-t border-gray-100 shadow-xl overflow-hidden"
                               >
                                     <div className="px-4 py-4 space-y-1">
                                           {navLinks.map((link) => (
@@ -112,13 +156,42 @@ export default function Navbar() {
                                                       {link.label}
                                                 </a>
                                           ))}
+
                                           <div className="pt-3 flex flex-col gap-2">
-                                                <button className="w-full py-3 text-sm font-semibold text-blue-600 border-2 border-blue-200 rounded-xl hover:bg-blue-50 transition-all">
-                                                      Login
-                                                </button>
-                                                <button className="w-full py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 rounded-xl shadow-lg">
-                                                      Sign Up Free
-                                                </button>
+                                                {isAuthenticated ? (
+                                                      <>
+                                                            <Link
+                                                                  to={getDashboardPath(user?.role)}
+                                                                  onClick={() => setMobileOpen(false)}
+                                                                  className="w-full py-3 text-sm font-semibold text-blue-600 border-2 border-blue-200 rounded-xl hover:bg-blue-50 transition-all text-center block"
+                                                            >
+                                                                  Go to Dashboard
+                                                            </Link>
+                                                            <button
+                                                                  onClick={handleLogout}
+                                                                  className="w-full py-3 text-sm font-semibold text-white bg-gradient-to-r from-red-500 to-rose-600 rounded-xl shadow-lg"
+                                                            >
+                                                                  Logout
+                                                            </button>
+                                                      </>
+                                                ) : (
+                                                      <>
+                                                            <Link
+                                                                  to="/login"
+                                                                  onClick={() => setMobileOpen(false)}
+                                                                  className="w-full py-3 text-sm font-semibold text-blue-600 border-2 border-blue-200 rounded-xl hover:bg-blue-50 transition-all text-center block"
+                                                            >
+                                                                  Login
+                                                            </Link>
+                                                            <Link
+                                                                  to="/signup"
+                                                                  onClick={() => setMobileOpen(false)}
+                                                                  className="w-full py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-violet-600 rounded-xl shadow-lg text-center block"
+                                                            >
+                                                                  Sign Up Free
+                                                            </Link>
+                                                      </>
+                                                )}
                                           </div>
                                     </div>
                               </motion.div>

@@ -2,72 +2,15 @@
 
 **AI-Powered Smart Government Grievance Redressal Platform**
 
-A modern, futuristic landing page built with React.js, Tailwind CSS, and Framer Motion — designed for next-generation Indian smart governance.
+Full-stack MERN application with JWT authentication, role-based access control, and a modern React landing page.
 
 ---
 
 ## Prerequisites
 
-Make sure you have the following installed:
-
-- [Node.js](https://nodejs.org/) — version **18 or higher**
-- npm — comes bundled with Node.js
-
-To verify:
-```bash
-node -v
-npm -v
-```
-
----
-
-## Getting Started
-
-### 1. Navigate to the project folder
-
-```bash
-cd "e-Samadhan AI"
-```
-
-### 2. Install dependencies
-
-```bash
-npm install
-```
-
-### 3. Start the development server
-
-```bash
-npm run dev
-```
-
-### 4. Open in browser
-
-Visit: [http://localhost:5173](http://localhost:5173)
-
----
-
-## Available Scripts
-
-| Command | Description |
-|---|---|
-| `npm run dev` | Start local dev server at `localhost:5173` |
-| `npm run build` | Build for production (output in `/dist`) |
-| `npm run preview` | Preview the production build locally |
-
----
-
-## Tech Stack
-
-| Technology | Purpose |
-|---|---|
-| React 18 | UI framework |
-| Vite 5 | Build tool & dev server |
-| Tailwind CSS 3 | Utility-first styling |
-| Framer Motion 11 | Animations & transitions |
-| Lucide React | Icon library |
-| React CountUp | Animated number counters |
-| React Intersection Observer | Scroll-triggered animations |
+- [Node.js](https://nodejs.org/) v18+
+- [MongoDB](https://www.mongodb.com/) (local or Atlas)
+- npm
 
 ---
 
@@ -75,52 +18,160 @@ Visit: [http://localhost:5173](http://localhost:5173)
 
 ```
 e-Samadhan AI/
-├── public/
-│   └── favicon.svg
-├── src/
+├── src/                        # React frontend
+│   ├── api/axios.js            # Axios instance + interceptors
+│   ├── context/AuthContext.jsx # Auth state management
 │   ├── components/
-│   │   ├── Navbar.jsx
-│   │   ├── Hero.jsx
-│   │   ├── Features.jsx
-│   │   ├── Departments.jsx
-│   │   ├── HowItWorks.jsx
-│   │   ├── Analytics.jsx
-│   │   ├── WhyChooseUs.jsx
-│   │   ├── Testimonials.jsx
-│   │   ├── CTA.jsx
-│   │   └── Footer.jsx
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
+│   │   ├── auth/               # AuthLayout, ProtectedRoute
+│   │   └── (landing sections)
+│   ├── pages/
+│   │   ├── auth/               # Login, Signup, ForgotPassword, ResetPassword
+│   │   └── dashboards/         # Citizen, Officer, Admin dashboards
+│   └── App.jsx                 # Router + AuthProvider
+├── backend/
+│   ├── config/db.js
+│   ├── controllers/authController.js
+│   ├── middleware/             # auth, errorHandler, upload
+│   ├── models/User.js
+│   ├── routes/authRoutes.js
+│   ├── utils/                  # sendToken, sendEmail
+│   └── server.js
 ├── index.html
-├── package.json
-├── tailwind.config.js
-├── postcss.config.js
-└── vite.config.js
+├── vite.config.js              # Proxies /api → localhost:5000
+└── package.json
 ```
 
 ---
 
-## Troubleshooting
+## Quick Start
 
-**Port already in use?**
-Vite will automatically try the next available port. Or specify one:
-```bash
-npm run dev -- --port 3000
-```
+### 1. Frontend
 
-**Dependencies not installing?**
-Try clearing the npm cache:
 ```bash
-npm cache clean --force
 npm install
+npm run dev
+```
+Runs at: http://localhost:5173
+
+### 2. Backend
+
+```bash
+cd backend
 ```
 
-**Node version too old?**
-Download the latest LTS from [nodejs.org](https://nodejs.org/).
+Copy and configure environment:
+```bash
+copy .env.example .env
+```
+
+Edit `backend/.env`:
+```env
+MONGO_URI=mongodb://localhost:27017/esamadhan_ai
+JWT_SECRET=your_secret_key_min_32_chars
+```
+
+Install and start:
+```bash
+npm install
+npm run dev
+```
+Runs at: http://localhost:5000
+
+---
+
+## API Routes
+
+| Method | Route | Access | Description |
+|--------|-------|--------|-------------|
+| POST | `/api/auth/register` | Public | Register citizen or officer |
+| POST | `/api/auth/login` | Public | Login with email + password |
+| POST | `/api/auth/logout` | Private | Logout (clears cookie) |
+| GET | `/api/auth/me` | Private | Get current user |
+| POST | `/api/auth/forgot-password` | Public | Send reset email |
+| POST | `/api/auth/reset-password/:token` | Public | Reset password |
+| PUT | `/api/auth/update-password` | Private | Change password |
+| GET | `/api/health` | Public | Health check |
+
+---
+
+## Auth Flow
+
+1. User registers/logs in → JWT issued as HTTP-only cookie + response body
+2. Token stored in `localStorage` as fallback
+3. Axios interceptor attaches token to every request
+4. `AuthContext` verifies token on app load via `GET /api/auth/me`
+5. `ProtectedRoute` / `RoleRoute` guard dashboard pages
+6. Role-based redirect: citizen → `/citizen/dashboard`, officer → `/officer/dashboard`, admin → `/admin/dashboard`
+
+---
+
+## Roles
+
+| Role | Registration | Dashboard |
+|------|-------------|-----------|
+| Citizen | Self-register | `/citizen/dashboard` |
+| Officer | Self-register (select department) | `/officer/dashboard` |
+| Admin | Backend only (manual DB insert) | `/admin/dashboard` |
+
+### Create Admin (manual)
+
+```js
+// In MongoDB shell or Compass
+db.users.insertOne({
+  name: "Admin User",
+  email: "admin@esamadhan.gov.in",
+  password: "$2a$12$...", // bcrypt hash of your password
+  role: "admin",
+  isActive: true,
+  isEmailVerified: true,
+  createdAt: new Date()
+})
+```
+
+Or use the seed script approach with bcryptjs.
+
+---
+
+## Environment Variables
+
+### Backend (`backend/.env`)
+
+```env
+PORT=5000
+NODE_ENV=development
+MONGO_URI=mongodb://localhost:27017/esamadhan_ai
+JWT_SECRET=your_super_secret_key_min_32_chars
+JWT_EXPIRE=7d
+JWT_COOKIE_EXPIRE=7
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_EMAIL=your@gmail.com
+SMTP_PASSWORD=your_app_password
+FROM_EMAIL=noreply@esamadhan.gov.in
+FROM_NAME=e-Samadhan AI
+CLIENT_URL=http://localhost:5173
+```
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18, Vite, Tailwind CSS, Framer Motion |
+| Routing | React Router DOM v6 |
+| HTTP | Axios |
+| Auth State | React Context API |
+| Notifications | React Hot Toast |
+| Backend | Node.js, Express.js |
+| Database | MongoDB, Mongoose |
+| Auth | JWT, bcryptjs, HTTP-only cookies |
+| Security | Helmet, CORS, express-rate-limit |
+| File Upload | Multer |
+| Email | Nodemailer |
 
 ---
 
 ## License
 
-MIT — free to use for hackathons, portfolios, and projects.
+MIT

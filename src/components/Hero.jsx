@@ -1,16 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { ArrowRight, Play, Shield, Zap, Globe } from 'lucide-react';
 
 const floatingBadges = [
-      { icon: Shield, label: 'Secure & Trusted', color: 'from-blue-500 to-blue-600', delay: 0 },
-      { icon: Zap, label: 'AI Powered', color: 'from-violet-500 to-violet-600', delay: 0.2 },
-      { icon: Globe, label: 'Pan India', color: 'from-emerald-500 to-emerald-600', delay: 0.4 },
+      { icon: Shield, label: 'Secure & Trusted', color: 'from-blue-500 to-blue-600' },
+      { icon: Zap, label: 'AI Powered', color: 'from-violet-500 to-violet-600' },
+      { icon: Globe, label: 'Pan India', color: 'from-emerald-500 to-emerald-600' },
 ];
 
 export default function Hero() {
       return (
             <section id="home" className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-violet-50">
+
                   {/* Animated background blobs */}
                   <div className="absolute inset-0 overflow-hidden pointer-events-none">
                         <motion.div
@@ -28,7 +30,6 @@ export default function Hero() {
                               transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
                               className="absolute bottom-0 left-1/3 w-80 h-80 bg-cyan-300/20 rounded-full blur-3xl"
                         />
-                        {/* Grid overlay */}
                         <div className="absolute inset-0 bg-grid opacity-40" />
                   </div>
 
@@ -39,7 +40,7 @@ export default function Hero() {
                                     key={i}
                                     animate={{ y: [0, -20, 0], rotate: [0, 10, 0], opacity: [0.3, 0.6, 0.3] }}
                                     transition={{ duration: 4 + i, repeat: Infinity, ease: 'easeInOut', delay: i * 0.8 }}
-                                    className={`absolute w-${4 + i * 2} h-${4 + i * 2} rounded-xl border border-blue-200/50 bg-white/20`}
+                                    className="absolute rounded-xl border border-blue-200/50 bg-white/20"
                                     style={{
                                           left: `${10 + i * 15}%`,
                                           top: `${15 + (i % 3) * 25}%`,
@@ -52,7 +53,8 @@ export default function Hero() {
 
                   <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
                         <div className="grid lg:grid-cols-2 gap-12 items-center">
-                              {/* Left Content */}
+
+                              {/* ── Left Content ── */}
                               <div>
                                     {/* Badge */}
                                     <motion.div
@@ -84,32 +86,42 @@ export default function Hero() {
                                           transition={{ duration: 0.6, delay: 0.2 }}
                                           className="text-lg text-gray-600 leading-relaxed mb-8 max-w-xl"
                                     >
-                                          Report civic problems, track complaints in real time, and get faster resolutions through AI-powered governance. Empowering every citizen of India.
+                                          Report civic problems, track complaints in real time, and get faster resolutions
+                                          through AI-powered governance. Empowering every citizen of India.
                                     </motion.p>
 
-                                    {/* CTA Buttons */}
+                                    {/* ── CTA Buttons — now use React Router Link ── */}
                                     <motion.div
                                           initial={{ opacity: 0, y: 20 }}
                                           animate={{ opacity: 1, y: 0 }}
                                           transition={{ duration: 0.6, delay: 0.3 }}
                                           className="flex flex-wrap gap-4 mb-10"
                                     >
-                                          <motion.button
+                                          <motion.div
                                                 whileHover={{ scale: 1.05, boxShadow: '0 15px 35px rgba(37,99,235,0.4)' }}
                                                 whileTap={{ scale: 0.97 }}
-                                                className="flex items-center gap-2 px-7 py-4 bg-gradient-to-r from-blue-600 to-violet-600 text-white font-bold rounded-2xl shadow-xl shadow-blue-200 text-base transition-all"
                                           >
-                                                Register Complaint
-                                                <ArrowRight className="w-5 h-5" />
-                                          </motion.button>
-                                          <motion.button
+                                                <Link
+                                                      to="/signup"
+                                                      className="flex items-center gap-2 px-7 py-4 bg-gradient-to-r from-blue-600 to-violet-600 text-white font-bold rounded-2xl shadow-xl shadow-blue-200 text-base transition-all"
+                                                >
+                                                      Register Complaint
+                                                      <ArrowRight className="w-5 h-5" />
+                                                </Link>
+                                          </motion.div>
+
+                                          <motion.div
                                                 whileHover={{ scale: 1.05 }}
                                                 whileTap={{ scale: 0.97 }}
-                                                className="flex items-center gap-2 px-7 py-4 bg-white text-blue-600 font-bold rounded-2xl border-2 border-blue-200 hover:border-blue-400 shadow-lg text-base transition-all"
                                           >
-                                                <Play className="w-5 h-5 fill-blue-600" />
-                                                Track Complaint
-                                          </motion.button>
+                                                <Link
+                                                      to="/login"
+                                                      className="flex items-center gap-2 px-7 py-4 bg-white text-blue-600 font-bold rounded-2xl border-2 border-blue-200 hover:border-blue-400 shadow-lg text-base transition-all"
+                                                >
+                                                      <Play className="w-5 h-5 fill-blue-600" />
+                                                      Track Complaint
+                                                </Link>
+                                          </motion.div>
                                     </motion.div>
 
                                     {/* Stats row */}
@@ -132,14 +144,13 @@ export default function Hero() {
                                     </motion.div>
                               </div>
 
-                              {/* Right — Illustration / Dashboard mockup */}
+                              {/* ── Right — Dashboard mockup ── */}
                               <motion.div
                                     initial={{ opacity: 0, x: 50 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ duration: 0.8, delay: 0.2 }}
                                     className="relative"
                               >
-                                    {/* Main dashboard card */}
                                     <motion.div
                                           animate={{ y: [0, -10, 0] }}
                                           transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
@@ -220,7 +231,10 @@ export default function Hero() {
                                                 key={badge.label}
                                                 initial={{ opacity: 0, scale: 0.8 }}
                                                 animate={{ opacity: 1, scale: 1, y: [0, -8, 0] }}
-                                                transition={{ duration: 0.5, delay: 0.6 + i * 0.15, y: { duration: 3 + i, repeat: Infinity, ease: 'easeInOut', delay: i } }}
+                                                transition={{
+                                                      duration: 0.5, delay: 0.6 + i * 0.15,
+                                                      y: { duration: 3 + i, repeat: Infinity, ease: 'easeInOut', delay: i },
+                                                }}
                                                 className={`absolute flex items-center gap-2 px-3 py-2 bg-gradient-to-r ${badge.color} text-white text-xs font-bold rounded-xl shadow-lg`}
                                                 style={{
                                                       top: i === 0 ? '-16px' : i === 1 ? '40%' : 'auto',

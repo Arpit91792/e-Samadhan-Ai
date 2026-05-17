@@ -1,0 +1,78 @@
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+
+// ── User collection ───────────────────────────────────────────────────────────
+// Stored in: esamadhan.users
+const userSchema = new mongoose.Schema(
+      {
+            name: { type: String, required: [true, 'Name is required'], trim: true, maxlength: 100 },
+            email: { type: String, required: [true, 'Email is required'], unique: true, lowercase: true, trim: true, match: [/^\S+@\S+\.\S+$/, 'Invalid email'] },
+            password: { type: String, required: [true, 'Password is required'], minlength: 8, select: false },
+            role: { type: String, enum: ['citizen', 'officer', 'admin'], default: 'citizen' },
+            phone: { type: String, trim: true },
+
+            // ── Citizen fields ──────────────────────────────────────────────────────
+            address: { type: String, trim: true },
+            city: { type: String, trim: true },
+            state: { type: String, trim: true },
+            govtIdType: { type: String, enum: ['aadhaar', 'pan', 'voter_id', 'driving_license', 'passport', ''], default: '' },
+            govtIdNumber: { type: String, trim: true, select: false },
+            govtIdImage: { type: String, default: null },
+
+            // ── Officer fields ──────────────────────────────────────────────────────
+            department: {
+                  type: String,
+                  enum: ['electricity', 'water_supply', 'roads_transport', 'sanitation', 'police', 'healthcare', 'municipal', 'education', 'general', ''],
+                  default: '',
+            },
+            employeeId: { type: String, trim: true },
+            governmentId: { type: String, trim: true },
+
+            // ── Admin fields ────────────────────────────────────────────────────────
+            adminSecretVerified: { type: Boolean, default: false },
+
+            // ── Shared ──────────────────────────────────────────────────────────────
+            profileImage: { type: String, default: null },
+            liveImage: { type: String, default: null },   // webcam selfie
+            otpVerified: { type: Boolean, default: false },
+            isEmailVerified: { type: Boolean, default: false },
+            isActive: { type: Boolean, default: true },
+
+            resetPasswordToken: String,
+            resetPasswordExpire: Date,
+            emailVerificationToken: String,
+            emailVerificationExpire: Date,
+            lastLogin: Date,
+      },
+      { timestamps: true }
+);
+
+// Hash password
+userSchema.pre('save', async function (next) {
+      if (!this.isModified('password')) return next();
+      this.password = await bcrypt.hash(this.password, 12);
+      next();
+});
+
+userSchema.methods.matchPassword = async function (entered) {
+      return bcrypt.compare(entered, this.password);
+};
+
+userSchema.methods.getSignedJwtToken = function () {
+      return jwt.sign({ id: this._id, role: this.role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
+};
+
+userSchema.methods.getResetPasswordToken = function () {
+      const token = crypto.randomBytes(32).toString('hex');
+      this.resetPasswordToken = crypto.createHash('sha256').update(token).digest('hex');
+      this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+      return token;
+};
+
+userSchema.index({ role: 1 });
+userSchema.index({ department: 1 });
+
+const User = mongoose.model('User', userSchema);
+export default User;
